@@ -75,6 +75,8 @@ namespace System.Data.Linq.SqlClient {
         const string SqlCeDataReaderTypeName = "System.Data.SqlServerCe.SqlCeDataReader";
         const string SqlCeConnectionTypeName = "System.Data.SqlServerCe.SqlCeConnection";
         const string SqlCeTransactionTypeName = "System.Data.SqlServerCe.SqlCeTransaction";
+        const string MindboxCommandTextKey = "MindboxSqlCommandText";
+        const string MindboxCommandParametersKey = "MindboxSqlParameters";
 
         internal ProviderMode Mode {
             get {
@@ -1058,6 +1060,13 @@ namespace System.Data.Linq.SqlClient {
                             return result;
                         }
                 }
+            }
+            catch (Exception ex)
+            {
+                ex.Data[MindboxCommandTextKey] = queryInfo.CommandText;
+                ex.Data[MindboxCommandParametersKey]
+                    = string.Join(", ", queryInfo.Parameters.Select(p => $"{p.Parameter.Name}={p.Value}"));
+                throw;
             }
             finally {
                 this.conManager.ReleaseConnection(this);
